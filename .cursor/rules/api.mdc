@@ -1,0 +1,22 @@
+---
+description: API authorization, outfit status, and storage rules
+globs: apps/api/**/*.ts,apps/worker/**/*.ts,packages/db/**/*.ts,packages/storage/**/*.ts,packages/contracts/**/*.ts
+alwaysApply: false
+---
+
+# API and worker
+
+- Require a session except Better Auth routes, `GET /health`, and `POST /test/login` when `NODE_ENV=test`.
+- Outfit writes check `ownerId`. Discover queries force public and `ready` on the server.
+- The client sends tags, hearts, visibility, content type, and byte size. The server chooses the object key and the next status.
+- Generate short-lived read URLs. Do not return storage keys or moderation `raw` payloads to normal clients.
+- Admin routes check `ADMIN_EMAILS`.
+- Call storage, weather, and moderation through their provider interfaces.
+
+```ts
+// BAD
+if (body.status === "ready") outfit.status = "ready";
+
+// GOOD
+const next = transition(outfit.status, { type: "upload_completed" });
+```

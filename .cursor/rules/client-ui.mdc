@@ -1,0 +1,25 @@
+---
+description: Web and mobile UI rules for outfits, status, and screen parity
+globs: apps/web/**/*.{ts,tsx},apps/mobile/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Clients
+
+- Web styling is Tailwind. Mobile styling is NativeWind.
+- Screens to keep aligned: today, outfits, outfits/new, outfits/[id], discover, location. Admin review is web-only.
+- After create, show the outfit immediately and upload in the background.
+- The upload tray stays mounted across the signed-in screens.
+- Reload during `uploading` shows Retry for that same outfit id.
+- Today lists the owner's `ready` matches only. Discover is the public search.
+
+```tsx
+// BAD — blocking the form until moderation finishes
+await uploadBytes(file);
+await waitUntilReady(id);
+
+// GOOD
+const outfit = await createOutfit(input);
+navigate("/outfits");
+void uploadTracker.start(outfit, file);
+```

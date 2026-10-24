@@ -1,0 +1,22 @@
+---
+description: TypeScript and domain boundaries for EVB
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript
+
+- Strict TypeScript. Use `unknown` and narrow it. Do not add `any`.
+- Validate external input with Zod schemas from `@evb/contracts`.
+- `packages/domain` stays free of React, React Native, Hono, Drizzle, and AWS imports.
+- Change outfit status through `transition(status, event)`.
+
+```ts
+// BAD
+outfit.status = "ready";
+
+// GOOD
+const next = transition(outfit.status, { type: "moderation_allowed" });
+```
+
+- Weather thresholds and tag slugs are not redefined in screens or SQL. Seed tags from `tagCatalog`.

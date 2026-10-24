@@ -1,0 +1,24 @@
+---
+description: EVB product invariants and where to read the plan before coding
+alwaysApply: true
+---
+
+# EVB
+
+Read `AGENTS.md`, `docs/product.md`, `docs/architecture.md`, and the current step in `docs/implementation-plan.md` before writing code.
+
+- Implement one plan step at a time. The app is not built yet.
+- Google-only auth. Session required on data routes.
+- Tag catalog, weather derivation, ranking, filters, and status transitions live in `packages/domain`.
+- Clients display status. Only the worker or admin review may set `ready`, `pending_review`, or `rejected`.
+- Discover returns rows with `visibility = public` and `status = ready`.
+- Keep upload progress and non-terminal outfits visible in the upload tray.
+
+```ts
+// BAD — UI decides that moderation passed
+await api.patchOutfit(id, { status: "ready" });
+
+// GOOD — UI asks for the server status and renders it
+const outfit = await api.getOutfit(id);
+return <StatusChip status={outfit.status} progress={uploadProgress} />;
+```
