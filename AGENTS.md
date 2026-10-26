@@ -1,6 +1,6 @@
 # EVB agent guide
 
-EVB is a weather-based outfit app: a Next.js web client and an Expo mobile client over one API. The product is specified and not built yet. Implement only the current step in [docs/implementation-plan.md](docs/implementation-plan.md).
+EVB is a weather-based outfit app: a Next.js web client and an Expo mobile client over one API. The step 1 skeleton is in place. Implement only the current step in [docs/implementation-plan.md](docs/implementation-plan.md).
 
 ## Read before changing the repo
 

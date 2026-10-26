@@ -8,7 +8,7 @@ Before writing application code, read:
 - [docs/architecture.md](docs/architecture.md)
 - [docs/implementation-plan.md](docs/implementation-plan.md)
 
-Implement only the current step in the implementation plan. The app is specified and not built yet.
+Implement only the current step in the implementation plan. Step 1 is complete. Start at step 2.
 
 Invariants that must not drift:
 

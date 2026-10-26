@@ -249,4 +249,4 @@ Share types and fetch functions through a thin client helper that both apps can 
 
 ## Local dependencies
 
-Docker Compose provides PostgreSQL and MinIO. The worker and API run on the host via Turborepo. No AWS account is required before the deployment step.
+Docker Compose provides PostgreSQL and MinIO. The MinIO service uses the public Chainguard image, because `minio/minio` is no longer published. The worker and API run on the host via Turborepo. No AWS account is required before the deployment step.
