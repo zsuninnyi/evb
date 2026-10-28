@@ -2,20 +2,30 @@
 
 This is the technical shape of EVB. Behavior lives in [product.md](product.md). Build order lives in [implementation-plan.md](implementation-plan.md).
 
+evb/
+apps/web Next.js site @evb/web
+apps/mobile Expo app @evb/mobile
+apps/api Hono server @evb/api
+apps/worker background process @evb/worker
+packages/domain weather and outfit rules, still empty
+packages/contracts Zod schemas, still just a re-export
+packages/db database, still empty
+packages/storage file storage, still empty
+
 ## Recommendation
 
 Use one TypeScript monorepo with two clients and one HTTP API.
 
-| Piece | Role |
-| --- | --- |
-| `apps/web` | Next.js App Router, React, Tailwind. Proxies `/api` to the Hono app so the browser session cookie stays first-party |
-| `apps/mobile` | Expo, Expo Router, NativeWind. Same screens as the web app. Sends a Better Auth bearer token |
-| `apps/api` | Hono. Auth, outfits, today, discover, presigned uploads |
-| `apps/worker` | Image derivatives, moderation, deletion of objects, stale-upload sweep |
-| `packages/domain` | Tag catalog, weather-tag derivation, ranking, outfit status machine |
-| `packages/contracts` | Zod request and response schemas shared by API and clients |
-| `packages/db` | Drizzle schema, migrations, seed |
-| `packages/storage` | `ObjectStorage` with a local/MinIO driver and an S3 driver |
+| Piece                | Role                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `apps/web`           | Next.js App Router, React, Tailwind. Proxies `/api` to the Hono app so the browser session cookie stays first-party |
+| `apps/mobile`        | Expo, Expo Router, NativeWind. Same screens as the web app. Sends a Better Auth bearer token                        |
+| `apps/api`           | Hono. Auth, outfits, today, discover, presigned uploads                                                             |
+| `apps/worker`        | Image derivatives, moderation, deletion of objects, stale-upload sweep                                              |
+| `packages/domain`    | Tag catalog, weather-tag derivation, ranking, outfit status machine                                                 |
+| `packages/contracts` | Zod request and response schemas shared by API and clients                                                          |
+| `packages/db`        | Drizzle schema, migrations, seed                                                                                    |
+| `packages/storage`   | `ObjectStorage` with a local/MinIO driver and an S3 driver                                                          |
 
 This split is the practical way to get a real website and a real React Native app without two backends. Expo Web as the only client would make Google redirect login, uploads, and the admin review page weaker. A Next.js-only app wrapped later in a webview would not be a native twin. Sharing `domain` and `contracts` is what keeps the twins identical where it matters: tags, ranking, validation, and status.
 
@@ -64,16 +74,16 @@ Export at least:
 
 `transition` is the only legal way to change status:
 
-| From | Event | To |
-| --- | --- | --- |
-| `uploading` | `upload_completed` | `processing` |
-| `uploading` | `upload_failed` | `upload_failed` |
-| `upload_failed` | `retry` | `uploading` |
-| `processing` | `moderation_allowed` | `ready` |
-| `processing` | `moderation_uncertain` | `pending_review` |
-| `processing` | `moderation_blocked` | `rejected` |
-| `pending_review` | `admin_approved` | `ready` |
-| `pending_review` | `admin_rejected` | `rejected` |
+| From             | Event                  | To               |
+| ---------------- | ---------------------- | ---------------- |
+| `uploading`      | `upload_completed`     | `processing`     |
+| `uploading`      | `upload_failed`        | `upload_failed`  |
+| `upload_failed`  | `retry`                | `uploading`      |
+| `processing`     | `moderation_allowed`   | `ready`          |
+| `processing`     | `moderation_uncertain` | `pending_review` |
+| `processing`     | `moderation_blocked`   | `rejected`       |
+| `pending_review` | `admin_approved`       | `ready`          |
+| `pending_review` | `admin_rejected`       | `rejected`       |
 
 `ready` and `rejected` have no outbound events in v1. Delete is a row removal, not a status.
 
@@ -132,19 +142,19 @@ When SQS arrives, the worker's claim function is the only code that should chang
 
 All routes except Better Auth and `GET /health` require a session.
 
-| Method | Path | Behavior |
-| --- | --- | --- |
-| POST | `/outfits` | Validate tags and hearts. Insert `uploading`. Return outfit plus upload instructions |
-| POST | `/outfits/:id/upload-complete` | Owner only. If status is `uploading`, move to `processing` and enqueue `process` |
-| POST | `/outfits/:id/retry-upload` | Owner only. From `upload_failed` to `uploading`, return new upload instructions |
-| GET | `/outfits` | Owner's rows, filters and sort from the product doc |
-| GET | `/outfits/:id` | Owner sees any status. Other users see it only when public and ready |
-| PATCH | `/outfits/:id` | Owner edits title, tags, hearts, visibility |
-| DELETE | `/outfits/:id` | Owner. Enqueue object deletion and delete the row |
-| GET | `/today` | Query `lat`/`lon` optional. Persist location when provided. Return date, observation, derived tags, ranked ready outfits |
-| GET | `/discover` | Public ready outfits, same filters |
-| GET | `/admin/reviews` | Allowlisted email. `pending_review` queue |
-| POST | `/admin/reviews/:id` | Body decision `approve` or `reject` |
+| Method | Path                           | Behavior                                                                                                                 |
+| ------ | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ |
+| POST   | `/outfits`                     | Validate tags and hearts. Insert `uploading`. Return outfit plus upload instructions                                     |
+| POST   | `/outfits/:id/upload-complete` | Owner only. If status is `uploading`, move to `processing` and enqueue `process`                                         |
+| POST   | `/outfits/:id/retry-upload`    | Owner only. From `upload_failed` to `uploading`, return new upload instructions                                          |
+| GET    | `/outfits`                     | Owner's rows, filters and sort from the product doc                                                                      |
+| GET    | `/outfits/:id`                 | Owner sees any status. Other users see it only when public and ready                                                     |
+| PATCH  | `/outfits/:id`                 | Owner edits title, tags, hearts, visibility                                                                              |
+| DELETE | `/outfits/:id`                 | Owner. Enqueue object deletion and delete the row                                                                        |
+| GET    | `/today`                       | Query `lat`/`lon` optional. Persist location when provided. Return date, observation, derived tags, ranked ready outfits |
+| GET    | `/discover`                    | Public ready outfits, same filters                                                                                       |
+| GET    | `/admin/reviews`               | Allowlisted email. `pending_review` queue                                                                                |
+| POST   | `/admin/reviews/:id`           | Body decision `approve` or `reject`                                                                                      |
 
 Responses use Zod schemas from `packages/contracts`. Image fields are signed read URLs with a short TTL, plus the status. The original key never leaves the server.
 
@@ -219,33 +229,33 @@ Integration tests may call `POST /test/login` only when `NODE_ENV=test`.
 
 Routes mirror each other.
 
-| Web | Mobile |
-| --- | --- |
-| `app/(app)/today` | `app/(app)/today` |
-| `app/(app)/outfits` | `app/(app)/outfits` |
-| `app/(app)/outfits/new` | `app/(app)/outfits/new` |
+| Web                      | Mobile                   |
+| ------------------------ | ------------------------ |
+| `app/(app)/today`        | `app/(app)/today`        |
+| `app/(app)/outfits`      | `app/(app)/outfits`      |
+| `app/(app)/outfits/new`  | `app/(app)/outfits/new`  |
 | `app/(app)/outfits/[id]` | `app/(app)/outfits/[id]` |
-| `app/(app)/discover` | `app/(app)/discover` |
-| `app/(app)/location` | `app/(app)/location` |
-| `app/admin/reviews` | none |
+| `app/(app)/discover`     | `app/(app)/discover`     |
+| `app/(app)/location`     | `app/(app)/location`     |
+| `app/admin/reviews`      | none                     |
 
 Share types and fetch functions through a thin client helper that both apps can import. Keep components separate: Tailwind on the web, NativeWind on mobile. Do not introduce a third UI kit to force pixel-identical components.
 
 ## Configuration
 
-| Variable | Use |
-| --- | --- |
-| `DATABASE_URL` | Postgres |
-| `BETTER_AUTH_SECRET` | Session signing |
-| `BETTER_AUTH_URL` | Public API origin |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Web OAuth |
-| `GOOGLE_IOS_CLIENT_ID` / `GOOGLE_ANDROID_CLIENT_ID` | Mobile OAuth |
-| `STORAGE_DRIVER` | `local` or `s3` |
-| `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`, credentials | MinIO or AWS |
-| `MODERATION_DRIVER` | `allow`, `test`, or `rekognition` |
-| `WEATHER_DRIVER` | `open-meteo` or a later vendor |
-| `ADMIN_EMAILS` | Comma-separated allowlist |
-| `NODE_ENV` | Enables test login only when `test` |
+| Variable                                             | Use                                 |
+| ---------------------------------------------------- | ----------------------------------- |
+| `DATABASE_URL`                                       | Postgres                            |
+| `BETTER_AUTH_SECRET`                                 | Session signing                     |
+| `BETTER_AUTH_URL`                                    | Public API origin                   |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`          | Web OAuth                           |
+| `GOOGLE_IOS_CLIENT_ID` / `GOOGLE_ANDROID_CLIENT_ID`  | Mobile OAuth                        |
+| `STORAGE_DRIVER`                                     | `local` or `s3`                     |
+| `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`, credentials | MinIO or AWS                        |
+| `MODERATION_DRIVER`                                  | `allow`, `test`, or `rekognition`   |
+| `WEATHER_DRIVER`                                     | `open-meteo` or a later vendor      |
+| `ADMIN_EMAILS`                                       | Comma-separated allowlist           |
+| `NODE_ENV`                                           | Enables test login only when `test` |
 
 ## Local dependencies
 
