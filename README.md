@@ -2,7 +2,7 @@
 
 EVB is a web app and a matching mobile app that suggest outfits for the current day from the weather. People sign in with Google, save photos of outfits with weather tags, occasion tags, and a 1–5 heart rating, then open the app and see the outfits that fit today.
 
-This repository currently holds the product specification and the implementation plan. Application code is not in the repo yet. Build it by following [docs/implementation-plan.md](docs/implementation-plan.md) in order.
+Step 1 of the implementation plan is in the repo: the monorepo, placeholder clients, and an API health check. Build the product by following [docs/implementation-plan.md](docs/implementation-plan.md) from step 2.
 
 ## Docs
 
@@ -29,3 +29,21 @@ TypeScript monorepo (pnpm, Turborepo):
 - Files: an object-storage interface, local disk or MinIO in development, S3 when deploying
 
 AWS is a deployment target after the app works locally. It is not required to build or run v1 on a laptop.
+
+## Run locally
+
+Start Docker, then:
+
+```bash
+docker compose up -d
+pnpm install
+pnpm dev
+```
+
+`pnpm dev` starts the API on port 3001, the worker, and the website on port 3000. The health check is [http://localhost:3001/health](http://localhost:3001/health). Postgres is published on port 5433, and MinIO on port 9000.
+
+The mobile app starts separately:
+
+```bash
+pnpm --filter @evb/mobile dev
+```

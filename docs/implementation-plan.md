@@ -2,7 +2,7 @@
 
 EVB is specified in [product.md](product.md) and [architecture.md](architecture.md). This file is the build order. Do one step at a time. Each step has a goal, the work, and exit criteria. Stop when the exit criteria pass.
 
-Nothing in `apps/` or `packages/` exists yet. Step 1 is the first code step.
+Step 1 is complete. The next step is step 2.
 
 Do not deploy to AWS, add Rekognition, or build the mobile UI before their steps. Do keep the API client-agnostic from the first outfit endpoint so the mobile app is not a second backend.
 
