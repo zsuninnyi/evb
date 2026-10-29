@@ -70,7 +70,7 @@ Export at least:
 - `transition(status, event) -> status` that throws on illegal events
 - filter helpers that implement OR-within-category and AND-across-categories, plus minimum hearts
 
-`deriveWeatherTags` owns the temperature bands, 40 km/h wind threshold, humidity rule, and the mapping from WMO weather codes to rain or snow. API routes pass through the result. UI code displays it.
+`deriveWeatherTags` owns the temperature bands, 40 km/h wind threshold, humidity rule, and the mapping from WMO weather codes to rain or snow. It does not emit `any`. That tag is chosen on the outfit and matches every derived day and every weather filter, without counting as a specific overlap. API routes pass through the result. UI code displays it.
 
 `transition` is the only legal way to change status:
 

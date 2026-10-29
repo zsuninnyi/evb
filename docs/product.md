@@ -84,6 +84,7 @@ Users pick tags. They do not create them. The catalog in `packages/domain` is th
 | `snowy` | Snowy | Snow on the ground or falling |
 | `windy` | Windy | Wind is strong enough to change what to wear |
 | `humid` | Humid | Hot or warm and sticky |
+| `any` | Any weather | Fine to wear whatever the weather is |
 
 ### Occasion
 
@@ -128,7 +129,9 @@ If location permission is denied or lookup fails, Today asks for a city and save
 Today lists the signed-in user's outfits where:
 
 - status is `ready`
-- at least one weather tag overlaps the derived tags
+- at least one weather tag overlaps the derived tags, or the outfit is tagged `any`
+
+`any` is a choice on the outfit, not a tag the weather observation produces. It does not increase the match count, so an outfit tagged for today's actual conditions ranks ahead of an any-weather outfit.
 
 Occasion tags do not affect the default list. The screen offers the occasion catalog as an optional single-select narrow ("Work", "Sporty", and so on). Choosing one keeps only outfits that include that occasion tag.
 
@@ -155,7 +158,7 @@ The list shows every outfit the owner has, including ones that are still uploadi
 
 Filters combine like this:
 
-- Selected weather tags: outfit matches if it has any of them.
+- Selected weather tags: outfit matches if it has any of them, or if it is tagged `any`.
 - Selected occasion tags: outfit matches if it has any of them.
 - Weather filter and occasion filter both apply when both are set.
 - Minimum hearts: rating is at least that value.
