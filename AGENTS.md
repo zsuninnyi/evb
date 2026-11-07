@@ -16,7 +16,7 @@ If a requested change conflicts with those docs, stop and ask. Do not silently w
 - An outfit has one photo, a heart rating from 1 to 5, one or more weather tags, and one or more occasion tags.
 - Tags come from the catalog in `packages/domain`. Users do not invent tags in v1.
 - Heart rating is the owner's taste. It is not a community like count.
-- Today shows the signed-in user's ready outfits that match today's derived weather tags, best matches first.
+- Today shows the signed-in user's ready outfits that match today's derived weather tags, best matches first. Outfits tagged `any` are included on every derived day and rank after specific weather matches.
 - Discover shows other people's outfits only when `visibility = public` and `status = ready`.
 - The owner can always see their own outfits and the status of each one.
 - Upload returns quickly. Byte transfer, image processing, and moderation continue afterward. The UI keeps a visible status until the outfit reaches a terminal state.
