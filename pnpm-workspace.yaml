@@ -5,5 +5,9 @@ packages:
 overrides:
   react: 19.3.1
   react-dom: 19.3.1
+
+allowBuilds:
+  esbuild: true
+
 minimumReleaseAgeExclude:
   - hono@4.13.14

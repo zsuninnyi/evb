@@ -1,8 +1,9 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
-    "types": []
+    "rootDir": ".",
+    "types": ["node"],
+    "allowImportingTsExtensions": true
   },
-  "include": ["src"]
+  "include": ["src", "drizzle.config.ts"]
 }
