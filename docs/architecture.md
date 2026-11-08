@@ -9,8 +9,8 @@ apps/api Hono server @evb/api
 apps/worker background process @evb/worker
 packages/domain weather and outfit rules, still empty
 packages/contracts Zod schemas, still just a re-export
-packages/db database, still empty
-packages/storage file storage, still empty
+packages/db Drizzle schema, migrations, and tag seed
+packages/storage local and S3-compatible object storage
 
 ## Recommendation
 
